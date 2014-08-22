@@ -39,6 +39,7 @@ bloat.zip
 ### Providing other nm
 
   You have to have installed gcc with nm in order to run this app, in order to specify nm program to be run you can use specific option  (see ```-h``` or code) 
+  You can also provide dump file from any nm (see ```-n``` or code).
 
 ## About
 
