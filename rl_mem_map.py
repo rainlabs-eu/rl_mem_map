@@ -8,37 +8,39 @@ import zipfile
 import webbrowser
 
 
-def call_nm(nm,source):
+def call_nm(nm, source):
     '''
     :rtype: string
     '''
-    nm_result = subprocess.Popen([nm,'-C','-S', '-l', source], stdout=subprocess.PIPE, shell=True)
-    (nm_output, err) = nm_result.communicate()
+    nm_result = subprocess.Popen([nm, '-C', '-S', '-l', source], stdout=subprocess.PIPE, shell=True)
+    (nm_output, _) = nm_result.communicate()
     nm_result.wait()
     return nm_output
 
 
-def get_nm_output_as_file(nm,source):
+def get_nm_output_as_file(nm, source):
     '''
     :rtype: file
     '''
-    f_nm = open("tmp_nm.out",'w')
-    string_result = call_nm(nm,source)
+    f_nm = open("tmp_nm.out", 'w')
+    string_result = call_nm(nm, source)
     f_nm.write(string_result)
     f_nm.close()
-    f_nm = open("tmp_nm.out",'r')
+    f_nm = open("tmp_nm.out", 'r')
     return f_nm
-    
+
+
 def make_output_files(str_json, output_directory):
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
-    bloat_json_path = os.path.join(output_directory,'bloat.json')
+    bloat_json_path = os.path.join(output_directory, 'bloat.json')
     output_json = open(bloat_json_path, 'w')
     output_json.write(str_json)
     path_to_script_directory = os.path.dirname(os.path.realpath(__file__))
-    path_to_zip = os.path.join(path_to_script_directory,'bloat.zip')
-    with zipfile.ZipFile(path_to_zip,'r') as z:
+    path_to_zip = os.path.join(path_to_script_directory, 'bloat.zip')
+    with zipfile.ZipFile(path_to_zip, 'r') as z:
         z.extractall(output_directory)
+
 
 def check_args(parser, args):
     if len(args) != 2:
@@ -46,7 +48,7 @@ def check_args(parser, args):
         sys.exit(1)
 
 if __name__ == "__main__":
-    usage="""%prog path/to/smth.exe path/to/output/directory [options]\n or \n
+    usage = """%prog path/to/smth.exe path/to/output/directory [options]\n or \n
     %prog path/to/nm.out path/to/output/directory -n [options]
     \n\n nm output passed with -nm should from running a command
     like the following (note, can take a long time -- 30 minutes):
@@ -63,19 +65,19 @@ if __name__ == "__main__":
     parser.add_option('--nm-prefix', action='store', metavar='STRING', dest='nmprefix',
                   default='', help="Prefix to append while calling nm"
                   "eg: --nm-prefix=avs. results in calling avs.nm while processing file")
-    parser.add_option('-n', action="store_true", dest="nm_input", default = False,
-                      help= "Use this if you want to pass nm output")
-    parser.add_option('-b', action="store_true", dest="open_in_web_browser", default = False,
-                      help= "Use this if you want to open resulting file in web browser")
+    parser.add_option('-n', action="store_true", dest="nm_input", default=False,
+                      help="Use this if you want to pass nm output")
+    parser.add_option('-b', action="store_true", dest="open_in_web_browser", default=False,
+                      help="Use this if you want to open resulting file in web browser")
     opts, args = parser.parse_args()
-    
+
     check_args(parser, args)
     if opts.nm_input:
         nm_out = args[0]
         nmfile = open(nm_out, 'r')
     else:
-        nmfile = get_nm_output_as_file(opts.nmprefix+"nm",args[0])
-    
+        nmfile = get_nm_output_as_file(opts.nmprefix + "nm", args[0])
+
     try:
         res = subprocess.check_output([opts.cppfilt, 'main'])
         if res.strip() != 'main':
@@ -92,7 +94,5 @@ if __name__ == "__main__":
     if opts.nm_input:
         os.remove("tmp_nm.out")
     if opts.open_in_web_browser:
-        index_html_path = os.path.join(os.getcwd(),output_directory,"index.html");
+        index_html_path = os.path.join(os.getcwd(), output_directory, "index.html")
         webbrowser.open()
-
-    
