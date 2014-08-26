@@ -6,6 +6,7 @@ import subprocess
 import os
 import zipfile
 import webbrowser
+import tempfile
 
 
 def call_nm(nm, source):
@@ -22,11 +23,11 @@ def get_nm_output_as_file(nm, source):
     '''
     :rtype: file
     '''
-    f_nm = open("tmp_nm.out", 'w')
+    f_nm = tempfile.TemporaryFile()
     string_result = call_nm(nm, source)
     f_nm.write(string_result)
-    f_nm.close()
-    f_nm = open("tmp_nm.out", 'r')
+    f_nm.truncate()
+    f_nm.seek(0)
     return f_nm
 
 
@@ -66,7 +67,7 @@ if __name__ == "__main__":
                   default='', help="Prefix to append while calling nm"
                   "eg: --nm-prefix=avs. results in calling avs.nm while processing file")
     parser.add_option('-n', action="store_true", dest="nm_input", default=False,
-                      help="Use this if you want to pass nm output")
+                      help="Use this if you want to pass nm output as input file")
     parser.add_option('-b', action="store_true", dest="open_in_web_browser", default=False,
                       help="Use this if you want to open resulting file in web browser")
     opts, args = parser.parse_args()
