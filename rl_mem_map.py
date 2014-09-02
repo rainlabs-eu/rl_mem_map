@@ -64,12 +64,15 @@ if __name__ == "__main__":
                       "symbols that weren't handled by nm. Set to an invalid path "
                       "to disable.")
     parser.add_option('--nm-prefix', action='store', metavar='STRING', dest='nmprefix',
-                  default='', help="Prefix to append while calling nm"
-                  "eg: --nm-prefix=avs. results in calling avs.nm while processing file")
+                      default='', help="Prefix to append while calling nm"
+                      "eg: --nm-prefix=avs. results in calling avs.nm while processing file")
     parser.add_option('-n', action="store_true", dest="nm_input", default=False,
                       help="Use this if you want to pass nm output as input file")
     parser.add_option('-b', action="store_true", dest="open_in_web_browser", default=False,
                       help="Use this if you want to open resulting file in web browser")
+    parser.add_option('--exclude_sym', action='store', dest='excludesymlist', type="string",
+                      default="", help="list of symbols to exclude while making json"
+                      "e.g. --exclude-sym=bTw")
     opts, args = parser.parse_args()
 
     check_args(parser, args)
@@ -89,11 +92,9 @@ if __name__ == "__main__":
         print >>sys.stderr, ("Could not find c++filt at %s, "
                              "output won't be demangled." % opts.cppfilt)
         opts.cppfilt = None
-    bloat_json = bloat.dump_nm(nmfile, strip_prefix=opts.strip_prefix, cppfilt=opts.cppfilt)
+    bloat_json = bloat.dump_nm(nmfile, strip_prefix=opts.strip_prefix, cppfilt=opts.cppfilt, excluded_sym=opts.excludesymlist)
     output_directory = args[1]
     make_output_files(bloat_json, output_directory)
-    if opts.nm_input:
-        os.remove("tmp_nm.out")
     if opts.open_in_web_browser:
         index_html_path = os.path.join(os.getcwd(), output_directory, "index.html")
-        webbrowser.open()
+        webbrowser.open(index_html_path)
