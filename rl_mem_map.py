@@ -13,7 +13,7 @@ def call_nm(nm, source):
     '''
     :rtype: string
     '''
-    nm_result = subprocess.Popen([nm, '-C', '-S', '-l', source], stdout=subprocess.PIPE, shell=True)
+    nm_result = subprocess.Popen([nm, '-C', '-S', '-l','--size-sort', source], stdout=subprocess.PIPE, shell=True)
     (nm_output, _) = nm_result.communicate()
     nm_result.wait()
     return nm_output
@@ -49,11 +49,12 @@ def check_args(parser, args):
         sys.exit(1)
 
 if __name__ == "__main__":
-    usage = """%prog path/to/smth.exe path/to/output/directory [options]\n or \n
+    usage = """\n%prog path/to/smth.exe path/to/output/directory [options]\n or \n
     %prog path/to/nm.out path/to/output/directory -n [options]
     \n\n nm output passed with -nm should from running a command
     like the following (note, can take a long time -- 30 minutes):
-      nm -C -S -l /path/to/binary > nm.out"""
+      nm -C -S -l /path/to/binary > nm.out \n
+      (Look Out ! some files nm needs --size-sort)"""
     parser = optparse.OptionParser(usage=usage)
     parser.add_option('--strip-prefix', metavar='PATH', action='store',
                       help='strip PATH prefix from paths; e.g. /path/to/src/root')
@@ -70,8 +71,9 @@ if __name__ == "__main__":
                       help="Use this if you want to pass nm output as input file")
     parser.add_option('-b', action="store_true", dest="open_in_web_browser", default=False,
                       help="Use this if you want to open resulting file in web browser")
-    parser.add_option('--exclude_sym', action='store', dest='excludesymlist', type="string",
+    parser.add_option('--exclude-sym', action='store', dest='excludesymlist', type="string",
                       default="", help="list of symbols to exclude while making json"
+                      "for list of symbols check your nm specification ( https://sourceware.org/binutils/docs-2.17/binutils/nm.html )"
                       "e.g. --exclude-sym=bTw")
     opts, args = parser.parse_args()
 
